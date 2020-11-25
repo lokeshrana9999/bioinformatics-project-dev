@@ -27,11 +27,14 @@ const sequenceFormSchema = {
   sequence1: [required],
   sequence2: [required],
   alignmentType: [required],
+  matchScore:[required],
+  gapPanelty:[required],
+  mismatchPanelty:[required],
 };
 
 const SequenceForm = ({ values, handleSubmit, submitting, errors, t }) => {
   return (
-    <Card style={{width:'100vw', maxWidth:'400px', minWidth:'300px'}}>
+    <Card style={{ width: "100vw", maxWidth: "400px", minWidth: "300px" }}>
       <Form name="sequence" onSubmit={handleSubmit}>
         <Field
           name="alignmentType"
@@ -55,16 +58,57 @@ const SequenceForm = ({ values, handleSubmit, submitting, errors, t }) => {
           name="sequence2"
           component={RenderField}
           type="textarea"
-          label={"Sequence"}
+          label={"Sequence2"}
           value={values.sequence2}
         />
-
+        <Field
+          name="matchScore"
+          component={RenderSelect}
+          type="select"
+          label={"Match Score"}
+          value={values.matchScore}
+        >
+          <Option value={0}>0</Option>
+          <Option value={1}>1</Option>
+          <Option value={2}>2</Option>
+          <Option value={3}>3</Option>
+          <Option value={4}>4</Option>
+          <Option value={5}>5</Option>
+        </Field>
+        <Field
+          name="mismatchPanelty"
+          component={RenderSelect}
+          type="select"
+          label={"Mismatch Panelty"}
+          value={values.mismatchPanelty}
+        >
+          <Option value={0}>0</Option>
+          <Option value={-1}>-1</Option>
+          <Option value={-2}>-2</Option>
+          <Option value={-3}>-3</Option>
+          <Option value={-4}>-4</Option>
+          <Option value={-5}>-5</Option>
+        </Field>
+        <Field
+          name="gapPanelty"
+          component={RenderSelect}
+          type="select"
+          label={"Gap Panelty"}
+          value={values.gapPanelty}
+        >
+          <Option value={0}>0</Option>
+          <Option value={-1}>-1</Option>
+          <Option value={-2}>-2</Option>
+          <Option value={-3}>-3</Option>
+          <Option value={-4}>-4</Option>
+          <Option value={-5}>-5</Option>
+        </Field>
         <div className="text-center">
           {errors && errors.errorMsg && (
             <Alert color="error">{errors.errorMsg}</Alert>
           )}
           <Button block color="primary" type="submit" disabled={submitting}>
-             Next <Icon type="arrow-right" />
+            Next <Icon type="arrow-right" />
           </Button>
         </div>
       </Form>
@@ -81,16 +125,17 @@ SequenceForm.propTypes = {
 };
 
 const SequenceFormWithFormik = withFormik({
-  mapPropsToValues: () => ({ sequence1: "", sequence2: "", alignmentType: "" }),
+  mapPropsToValues: () => ({
+    sequence1: "",
+    sequence2: "",
+    alignmentType: "",
+    matchScore: 1,
+    mismatchPanelty: -1,
+    gapPanelty: -1,
+  }),
   validate: (values) => validate(values, squenceFormSchema),
   async handleSubmit(values, { setErrors, props: { onSubmit } }) {
-    onSubmit(values).catch((e) => {
-      if (isFormError(e)) {
-        setErrors(e.errors);
-      } else {
-        throw e;
-      }
-    });
+    onSubmit(values);
   },
   enableReinitialize: true,
   displayName: "SignUpForm", // helps with React DevTools
