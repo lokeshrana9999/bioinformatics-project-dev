@@ -24149,6 +24149,11 @@ seq-queue@^0.0.5:
   resolved "https://registry.yarnpkg.com/seq-queue/-/seq-queue-0.0.5.tgz#d56812e1c017a6e4e7c3e3a37a1da6d78dd3c93e"
   integrity sha1-1WgS4cAXpuTnw+Ojeh2m143TyT4=
 
+seqalign@1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/seqalign/-/seqalign-1.0.3.tgz#a7c6b44a9fd0a8d2eeea43dd3c78116e0735c47d"
+  integrity sha512-Wbd8HOTcr1klLM0LJdHEsOmcjiWo/IqW0PQSOoQ6payclANooJRJGMk7ZowHC/ycjpdYeMwJR38qZ+ThVxyUsA==
+
 serialize-error@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/serialize-error/-/serialize-error-2.1.0.tgz#50b679d5635cdf84667bdc8e59af4e5b81d5f60a"

@@ -3,7 +3,7 @@ import Helmet from "react-helmet";
 import { Select, Input } from "antd";
 import { PageLayout } from "@gqlapp/look-client-react";
 import SequenceForm from "./SequenceForm";
-import NeedlemanWunsch from "./NeedlemanWunsch";
+import Sequencer from "./Sequencer";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -33,8 +33,8 @@ const SequenceView = ({ t }) => {
 
   return (
     <>
-      {formValues.alignmentType === "GA" && (
-        <NeedlemanWunsch sequenceValues={formValues} />
+      {formValues.alignmentType !== "" && (
+        <Sequencer sequenceValues={formValues} />
       )}
 
       {formValues.alignmentType === "" && (

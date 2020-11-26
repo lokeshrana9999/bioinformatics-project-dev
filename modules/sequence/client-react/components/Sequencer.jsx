@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import NeedlemanWunsch from "../methods/needleman_wunsch";
+import SmithWaterman from "../methods/smith_waterman";
 import "../styles/needleman_wunsch.css";
 
 /**
@@ -172,7 +173,6 @@ class Alignments extends Component {
   }
 }
 
-
 export default class App extends Component {
   constructor(props) {
     super(props);
@@ -184,6 +184,7 @@ export default class App extends Component {
       mm: -1,
       d: -1,
       show_grid: true,
+      alignmentType: "",
     };
 
     this.show_grid = this.show_grid.bind(this);
@@ -192,13 +193,23 @@ export default class App extends Component {
 
   componentDidMount() {
     const { sequenceValues } = this.props;
-
+    console.log(sequenceValues);
+    var seq1N = "";
+    var seq2N = "";
+    if (sequenceValues.sequence1.length < sequenceValues.sequence2.length) {
+      seq1N = sequenceValues.sequence1;
+      seq2N = sequenceValues.sequence2;
+    } else {
+      seq1N = sequenceValues.sequence2;
+      seq2N = sequenceValues.sequence1;
+    }
     this.setState({
-      seq1: sequenceValues.sequence1,
-      seq2: sequenceValues.sequence2,
+      seq1: seq1N,
+      seq2: seq2N,
       m: sequenceValues.matchScore,
       mm: sequenceValues.mismatchPanelty,
       d: sequenceValues.gapPanelty,
+      alignmentType: sequenceValues.alignmentType,
     });
   }
 
@@ -210,55 +221,69 @@ export default class App extends Component {
   }
 
   render() {
+    let nw;
+
     // Calculate scoring matrix
-    let nw = new NeedlemanWunsch(
-      this.state.seq1,
-      this.state.seq2,
-      this.state.m,
-      this.state.mm,
-      this.state.d
-    );
+    if (this.state.alignmentType == "GA") {
+      nw = new NeedlemanWunsch(
+        this.state.seq1,
+        this.state.seq2,
+        this.state.m,
+        this.state.mm,
+        this.state.d
+      );
+    } else if (this.state.alignmentType == "LA") {
+      nw = new SmithWaterman(
+        this.state.seq1,
+        this.state.seq2,
+        this.state.m,
+        this.state.mm,
+        this.state.d
+      );
+    }
+
+    console.log("SequenceData", nw);
 
     return (
       <div className="container-fluid">
-        <div className="row">
-          <div className="col-md-2">
-           
-          </div>
-          <div className="col-md-10">
-            <div className="container">
-              <ul className="nav nav-tabs">
-                <li className="nav-item">
-                  <a
-                    className={
-                      "nav-link " + (this.state.show_grid ? "active" : "")
-                    }
-                    onClick={this.show_grid}
-                  >
-                    Scoring grid
-                  </a>
-                </li>
-                <li className="nav-item">
-                  <a
-                    className={
-                      "nav-link " + (this.state.show_grid ? "" : "active")
-                    }
-                    onClick={this.hide_grid}
-                  >
-                    Alignments
-                  </a>
-                </li>
-              </ul>
-              <div>
-                {this.state.show_grid ? (
-                  <ScoringGrid nw={nw} />
-                ) : (
-                  <Alignments nw={nw} />
-                )}
+        {this.state.alignmentType !== "" && (
+          <div className="row">
+            <div className="col-md-2"></div>
+            <div className="col-md-10">
+              <div className="container">
+                <ul className="nav nav-tabs">
+                  <li className="nav-item">
+                    <a
+                      className={
+                        "nav-link " + (this.state.show_grid ? "active" : "")
+                      }
+                      onClick={this.show_grid}
+                    >
+                      Scoring grid
+                    </a>
+                  </li>
+                  <li className="nav-item">
+                    <a
+                      className={
+                        "nav-link " + (this.state.show_grid ? "" : "active")
+                      }
+                      onClick={this.hide_grid}
+                    >
+                      Alignments
+                    </a>
+                  </li>
+                </ul>
+                <div>
+                  {this.state.show_grid ? (
+                    <ScoringGrid nw={nw} />
+                  ) : (
+                    <Alignments nw={nw} />
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     );
   }
