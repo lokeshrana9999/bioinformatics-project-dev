@@ -9,15 +9,15 @@ import { MenuItem } from '@gqlapp/look-client-react';
 import resources from './locales';
 
 const NavLinkWithI18n = translate('sequence')(({ t }: { t: TranslateFunction }) => (
-  <NavLink to="/sequence" className="nav-link" activeClassName="active">
+  <NavLink to="/" className="nav-link" activeClassName="active">
     {t('sequence:navLink')}
   </NavLink>
 ));
 
 export default new ClientModule({
-  route: [<Route exact path="/sequence" component={loadable(() => import('./containers/Sequence').then(c => c.default))} />],
+  route: [<Route exact path="/" component={loadable(() => import('./containers/Sequence').then(c => c.default))} />],
   navItem: [
-    <MenuItem key="/sequence">
+    <MenuItem key="/">
       <NavLinkWithI18n />
     </MenuItem>
   ],
