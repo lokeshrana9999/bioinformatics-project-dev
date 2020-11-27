@@ -10,14 +10,14 @@ const { Option } = Select;
 
 const SequenceView = ({ t }) => {
   const [formValues, setFormValues] = useState({
-    sequence1: "AFSDFFFA",
-    sequence2: "ASDFFFASDFASDFFFA",
+    sequence1: "",
+    sequence2: "",
     matchScore: 1,
     mismatchPanelty: -1,
     gapPanelty: -1,
   });
 
-  const [alignmentType, setAlignmentType] = useState("LA");
+  const [alignmentType, setAlignmentType] = useState("");
 
   const onSubmit = (values) => {
     const newValues = {
