@@ -1,7 +1,9 @@
 import React, { Component } from "react";
+import { Row, Col, Menu, Divider, PageHeader } from "antd";
 import NeedlemanWunsch from "../methods/needleman_wunsch";
 import SmithWaterman from "../methods/smith_waterman";
 import "../styles/needleman_wunsch.css";
+import AlignmentTypes from "../constants";
 
 /**
  * Single character cell
@@ -31,6 +33,7 @@ class ScoreCell extends Component {
       prev_scores: this.props.prev_scores,
       prev_scores_max: this.props.prev_scores_max,
       score: this.props.score,
+      colored: this.props.colored,
     };
   }
 
@@ -39,12 +42,20 @@ class ScoreCell extends Component {
       prev_scores: nextProps.prev_scores,
       prev_scores_max: nextProps.prev_scores_max,
       score: nextProps.score,
+      colored: nextProps.colored,
     });
   }
 
   render() {
+    let rectClassName = "score-rect";
+    if (this.state.colored) {
+      rectClassName = rectClassName + " " + "score-rect-colored";
+      console.log("rectClassName", rectClassName);
+    } else {
+      rectClassName = rectClassName + " " + "score-rect-white";
+    }
     let graphics = [
-      <rect x="0" y="0" width="67" height="67" className="score-rect" />,
+      <rect x="0" y="0" width="67" height="67" className={rectClassName} />,
       <text x="40" y="53" className="score-text">
         {this.state.score}
       </text>,
@@ -101,7 +112,7 @@ class ScoringGrid extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     this.setState({
       nw: nextProps.nw,
     });
@@ -109,6 +120,8 @@ class ScoringGrid extends Component {
 
   render() {
     // first row (with sequence)
+    const { currentPos } = this.props;
+    console.log("currentPos", currentPos);
     let G = [[<Cell value={""} />, <Cell value={""} />]];
     this.state.nw.seq2.split("").forEach((c) => G[0].push(<Cell value={c} />));
     // first score row and beyond
@@ -121,8 +134,13 @@ class ScoringGrid extends Component {
       }
       G.push([<Cell value={c_init} />]);
       for (let j = 0; j < this.state.nw.S[0].length; j++) {
+        const colored = currentPos.find(
+          (elem) => elem[0] === i && elem[1] === j
+        );
+
         G[i + 1].push(
           <ScoreCell
+            colored={colored}
             score={this.state.nw.S[i][j]}
             prev_scores={this.state.nw.I[i][j]}
             prev_scores_max={this.state.nw.T[i][j]}
@@ -155,19 +173,38 @@ class Alignments extends Component {
 
   render() {
     const alignments = this.props.nw.alignmentTraceback();
+
+    const setCurrentPos = (e) => {
+      this.props.setCurrentPos(e);
+      // console.log(e)
+    };
+    console.log("alignments", alignments);
     return (
-      <div id="alignments">
-        <ul>
-          {alignments.map((al) => (
-            <li
-              className="margin"
-              style={{ fontFamily: "monospace", fontSize: "24px" }}
+      <div style={{ marginTop: "40px" }}>
+        <Menu style={{ borderRight: "2px solid grey" }}>
+          {alignments.map((al, kkkk) => (
+            <Menu.Item
+              key={kkkk}
+              onClick={(e) => setCurrentPos(al.position)}
+              // value={al.position}
+              // className="margin"
+              // title={
+
+              // }
+              style={{ whiteSpace: "normal", height: "auto", fontSize: "24px" }}
             >
-              <div>{al.seq1}</div>
-              <div>{al.seq2}</div>
-            </li>
+              {al.seq1
+                .split("")
+                .reverse()
+                .join("")}
+              <br />
+              {al.seq2
+                .split("")
+                .reverse()
+                .join("")}
+            </Menu.Item>
           ))}
-        </ul>
+        </Menu>
       </div>
     );
   }
@@ -183,12 +220,13 @@ export default class App extends Component {
       m: 1,
       mm: -1,
       d: -1,
-      show_grid: true,
+      // show_grid: true,
       alignmentType: "",
+      currentPos: [],
     };
 
-    this.show_grid = this.show_grid.bind(this);
-    this.hide_grid = this.hide_grid.bind(this);
+    this.setCurrentPos = this.setCurrentPos.bind(this);
+    // this.hide_grid = this.hide_grid.bind(this);
   }
 
   componentDidMount() {
@@ -213,14 +251,15 @@ export default class App extends Component {
     });
   }
 
-  show_grid() {
-    this.setState({ show_grid: true });
+  setCurrentPos(arg) {
+    this.setState({ currentPos: arg });
   }
-  hide_grid() {
-    this.setState({ show_grid: false });
-  }
+  // hide_grid() {
+  //   this.setState({ show_grid: false });
+  // }
 
   render() {
+    const {setAlignmentType} = this.props;
     let nw;
 
     // Calculate scoring matrix
@@ -245,46 +284,29 @@ export default class App extends Component {
     console.log("SequenceData", nw);
 
     return (
-      <div className="container-fluid">
-        {this.state.alignmentType !== "" && (
-          <div className="row">
-            <div className="col-md-2"></div>
-            <div className="col-md-10">
-              <div className="container">
-                <ul className="nav nav-tabs">
-                  <li className="nav-item">
-                    <a
-                      className={
-                        "nav-link " + (this.state.show_grid ? "active" : "")
-                      }
-                      onClick={this.show_grid}
-                    >
-                      Scoring grid
-                    </a>
-                  </li>
-                  <li className="nav-item">
-                    <a
-                      className={
-                        "nav-link " + (this.state.show_grid ? "" : "active")
-                      }
-                      onClick={this.hide_grid}
-                    >
-                      Alignments
-                    </a>
-                  </li>
-                </ul>
-                <div>
-                  {this.state.show_grid ? (
-                    <ScoringGrid nw={nw} />
-                  ) : (
-                    <Alignments nw={nw} />
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
+      <>
+        <PageHeader
+          style={{
+            border: "1px solid rgb(235, 237, 240)",
+          }}
+          onBack={() => setAlignmentType('')}
+          title={
+            this.state.alignmentType !== "" &&
+            (AlignmentTypes[this.state.alignmentType].title)
+          }
+        />
+        {nw && (
+          <Row>
+            <Col span={6}>
+              <Alignments setCurrentPos={this.setCurrentPos} nw={nw} />
+            </Col>
+            <Divider type="vertical" />
+            <Col span={18}>
+              <ScoringGrid nw={nw} currentPos={this.state.currentPos} />
+            </Col>
+          </Row>
         )}
-      </div>
+      </>
     );
   }
 }

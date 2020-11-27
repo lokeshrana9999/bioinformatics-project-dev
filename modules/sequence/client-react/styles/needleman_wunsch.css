@@ -1,56 +1,62 @@
 /* parameters */
 .param-label {
-    display: block;
+  display: block;
 }
 .form-group {
-    width: 120px;
+  width: 120px;
 }
-.form-group input, select {
-    width: 100%;
+.form-group input,
+select {
+  width: 100%;
 }
-
 
 /* navbar */
 .nav-item a {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 /* scoring grid */
 .score-rect {
-    fill: #ffffff;
-    stroke: #d1d1d1;
-    stroke-width: 1px;
-    fill-opacity: .1;
-    stroke-opacity: 0.9
+  stroke: #d1d1d1;
+  stroke-width: 1px;
+  fill-opacity: 1;
+  stroke-opacity: 0.9;
+}
+.score-rect-white {
+  fill: #ffffff;
+}
+
+.score-rect-colored {
+  fill: #e6f7ff !important;
 }
 .score-text {
-    font-size: 18px;
-    fill: black;
+  font-size: 18px;
+  fill: black;
 }
 .score-option-text {
-    font-size: 18px;
-    fill: #d3d3d3;
+  font-size: 18px;
+  fill: #d3d3d3;
 }
 
 .score-arrow {
-    fill: #000000;
+  fill: #000000;
 }
 
 .cell {
-    font-size: 40px;
+  font-size: 40px;
 }
 .cell-rect {
-    fill: #ffffff;
-    fill-opacity: .1;
-    stroke-opacity: 0.9
+  fill: #ffffff;
+  fill-opacity: 0.1;
+  stroke-opacity: 0.9;
 }
 
 /* generic */
 .margin {
-    margin: 20px;
+  margin: 20px;
 }
 
 .center-text {
-    width: 100%;
-    text-align: center;
+  width: 100%;
+  text-align: center;
 }

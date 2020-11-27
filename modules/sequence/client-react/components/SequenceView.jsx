@@ -10,18 +10,17 @@ const { Option } = Select;
 
 const SequenceView = ({ t }) => {
   const [formValues, setFormValues] = useState({
-    alignmentType: "",
-    sequence1: "",
-    sequence2: "",
+    sequence1: "AFSDFFFA",
+    sequence2: "ASDFFFASDFASDFFFA",
     matchScore: 1,
     mismatchPanelty: -1,
     gapPanelty: -1,
   });
 
+  const [alignmentType, setAlignmentType] = useState("LA");
+
   const onSubmit = (values) => {
-    console.log(values);
     const newValues = {
-      alignmentType: values.alignmentType,
       sequence1: values.sequence1,
       sequence2: values.sequence2,
       matchScore: values.matchScore,
@@ -29,15 +28,21 @@ const SequenceView = ({ t }) => {
       gapPanelty: values.gapPanelty,
     };
     setFormValues(newValues);
+    setAlignmentType(values.alignmentType);
   };
+
+  const newFormValues = {
+    sequence1: formValues.sequence1,
+    sequence2: formValues.sequence2,
+    matchScore: formValues.matchScore,
+    mismatchPanelty: formValues.mismatchPanelty,
+    gapPanelty: formValues.gapPanelty,
+    alignmentType:alignmentType
+  }
 
   return (
     <>
-      {formValues.alignmentType !== "" && (
-        <Sequencer sequenceValues={formValues} />
-      )}
-
-      {formValues.alignmentType === "" && (
+      {alignmentType === "" && (
         <div
           style={{
             display: "grid",
@@ -50,6 +55,12 @@ const SequenceView = ({ t }) => {
         >
           <SequenceForm onSubmit={onSubmit} />
         </div>
+      )}
+      {alignmentType !== "" && (
+        <Sequencer
+          sequenceValues={newFormValues}
+          setAlignmentType={setAlignmentType}
+        />
       )}
     </>
   );

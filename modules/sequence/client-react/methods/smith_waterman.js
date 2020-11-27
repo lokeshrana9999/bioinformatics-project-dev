@@ -40,22 +40,25 @@ class SmithWaterman {
 
     // Calculate scores and traceback on first row
     for (let j = 1; j < this.seq2.length + 1; j++) {
-      const currentScore = Math.max(0, this.S[0][this.S[0].length - 1] + this.gap_penalty);
+      const currentScore = Math.max(
+        0,
+        this.S[0][this.S[0].length - 1] + this.gap_penalty
+      );
 
       this.S[0].push(currentScore);
       this.I[0].push([null, null, null]);
-      this.T[0].push([true, false, false]);
+      this.T[0].push([false, false, false]);
     }
 
     // Generate other rows
     for (let i = 1; i < this.seq1.length + 1; i++) {
-        const currentScore = Math.max(0, this.S[i - 1][0] + this.gap_penalty);
+      const currentScore = Math.max(0, this.S[i - 1][0] + this.gap_penalty);
       this.S.push([currentScore]);
       this.I.push([[null, null, null]]);
-      this.T.push([[false, false, true]]);
+      this.T.push([[false, false, false]]);
       for (let j = 1; j < this.seq2.length + 1; j++) {
         const insert = Math.max(0, this.S[i][j - 1] + this.gap_penalty);
-        const del = Math.max(this.S[i - 1][j] + this.gap_penalty);
+        const del = Math.max(0, this.S[i - 1][j] + this.gap_penalty);
         // similarity
         let sim_score;
         if (this.seq1[i - 1] === this.seq2[j - 1]) {
@@ -66,9 +69,13 @@ class SmithWaterman {
         const match = Math.max(0, this.S[i - 1][j - 1] + sim_score);
         const intermediate_scores = [insert, match, del];
         const score = Math.max(...intermediate_scores);
-        const tracebackTypeStatus = intermediate_scores.map(
-          (e, i) => e === score
-        );
+        let tracebackTypeStatus;
+        if (score > this.S[i - 1][j - 1]) {
+          tracebackTypeStatus = [false, true, false];
+        } else {
+          tracebackTypeStatus = [false, false, false];
+        }
+
         this.S[i].push(score);
         this.I[i].push(intermediate_scores);
         this.T[i].push(tracebackTypeStatus);
@@ -86,18 +93,18 @@ class SmithWaterman {
     [i, j] = pos;
     children = [];
     const traceback_type_status = this.T[i][j];
-    if (traceback_type_status[0]) {
-      // insert
-      children.push({ pos: [i, j - 1], tracebackType: 0 });
-    }
+    // if (traceback_type_status[0]) {
+    //   // insert
+    //   children.push({ pos: [i, j - 1], tracebackType: 0 });
+    // }
     if (traceback_type_status[1]) {
       // match
       children.push({ pos: [i - 1, j - 1], tracebackType: 1 });
     }
-    if (traceback_type_status[2]) {
-      // delete
-      children.push({ pos: [i - 1, j], tracebackType: 2 });
-    }
+    // if (traceback_type_status[2]) {
+    //   // delete
+    //   children.push({ pos: [i - 1, j], tracebackType: 2 });
+    // }
     return children;
   }
 
@@ -105,43 +112,70 @@ class SmithWaterman {
    * Runs through scoring matrix from bottom-right to top-left using traceback values to create all optimal alignments
    * @returns {Array}
    */
+
   alignmentTraceback() {
     let final_alignments = [];
-    let root = {
-      next: null,
-      pos: [this.seq1.length, this.seq2.length],
-      alignment: {
-        seq1: "",
-        seq2: "",
-      },
-    };
-    let current, child, children, len, depth, alignment, pos, t;
-    current = root;
-    while (current) {
-      pos = current.pos;
-      alignment = current.alignment;
-      // Get children alignments
-      children = this.alignmentChildren(current.pos);
-      // Store completed alignments
-      if (!children.length) {
-        final_alignments.push(alignment);
-      }
-      current = current.next;
-      for (t = 0, len = children.length; t < len; t++) {
-        child = children[t];
-        child.alignment = {
-          seq1: alignment.seq1.concat(
-            child.tracebackType === 0 ? "-" : this.seq1[pos[0] - 1]
-          ), // -1 refers to offset between  scoring matrix and the sequence
-          seq2: alignment.seq2.concat(
-            child.tracebackType === 2 ? "-" : this.seq2[pos[1] - 1]
-          ),
-        };
-        // Move down a layer
-        child.next = current;
-        current = child;
+    const highestScore = Math.max(
+      ...this.S.map((sSm, key) => {
+        console.log("highest", Math.max(...sSm));
+        return Math.max(...sSm);
+      })
+    );
+
+    let cellsWithHighestScore = [];
+
+    for (let h = 0, len = this.S.length; h < len; h++) {
+      for (let g = 0, len2 = this.S[h].length; g < len2; g++) {
+        if (this.S[h][g] === highestScore) {
+          cellsWithHighestScore.push([h, g]);
+        }
       }
     }
+    const cell0 = cellsWithHighestScore[0];
+    const cell1 = cellsWithHighestScore[1];
+
+    cellsWithHighestScore.map((chR) => {
+      let root = {
+        next: null,
+        pos: [...chR],
+        alignment: {
+          seq1: "",
+          seq2: "",
+          position:[]
+        },
+      };
+      let current, child, children, len, depth, alignment, pos, t;
+      current = root;
+      let positionArr=[];
+      while (current) {
+        pos = current.pos;
+        alignment = current.alignment;
+        positionArr.push(current.pos);
+        console.log("POS", positionArr);
+        current.alignment.position = positionArr;
+        // Get children alignments
+        children = this.alignmentChildren(current.pos);
+        // Store completed alignments
+        if (!children.length) {
+          final_alignments.push(alignment);
+        }
+        current = current.next;
+        for (t = 0, len = children.length; t < len; t++) {
+          child = children[t];
+          child.alignment = {
+            seq1: alignment.seq1.concat(
+              child.tracebackType === 0 ? "-" : this.seq1[pos[0] - 1]
+            ), // -1 refers to offset between  scoring matrix and the sequence
+            seq2: alignment.seq2.concat(
+              child.tracebackType === 2 ? "-" : this.seq2[pos[1] - 1]
+            ),
+          };
+          // Move down a layer
+          child.next = current;
+          current = child;
+        }
+      }
+    });
     return final_alignments;
   }
 }

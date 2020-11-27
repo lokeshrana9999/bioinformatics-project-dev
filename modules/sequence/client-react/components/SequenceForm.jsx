@@ -22,6 +22,7 @@ import {
   Card,
 } from "@gqlapp/look-client-react";
 import settings from "@gqlapp/config";
+import AlignmentTypes from '../constants';
 
 const sequenceFormSchema = {
   sequence1: [required],
@@ -43,8 +44,8 @@ const SequenceForm = ({ values, handleSubmit, submitting, errors, t }) => {
           label={"Alignment Type"}
           value={values.alignmentType}
         >
-          <Option value="GA">Global Alignment (Needleman-Wunsch)</Option>
-          <Option value="LA">Local Alignment (Smith-Waterman)</Option>
+          <Option value={AlignmentTypes.GA.name}>{AlignmentTypes.GA.title}</Option>
+          <Option value={AlignmentTypes.LA.name}>{AlignmentTypes.LA.title}</Option>
         </Field>
         <Field
           name="sequence1"
